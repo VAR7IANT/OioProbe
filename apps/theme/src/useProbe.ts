@@ -8,8 +8,24 @@ import {
   type ConnectionState,
 } from "@oioprobe/komari-client";
 import { demoNodes, demoLive } from "./demo";
-export const client = new KomariClient();
-export const isDemo = import.meta.env.VITE_DATA_MODE === "demo";
+import { resolveKomariOrigin, publicApiUrl, publicSocketUrl, nativeAdminUrl } from "./endpoint";
+export const isVercel = import.meta.env.VITE_DEPLOY_TARGET === "vercel";
+export const komariOrigin = resolveKomariOrigin(
+  isVercel ? "vercel" : "komari",
+  import.meta.env.VITE_KOMARI_ORIGIN,
+  typeof window === "undefined" ? "http://127.0.0.1" : window.location.origin,
+);
+export const adminHref = komariOrigin ? nativeAdminUrl(komariOrigin) : null;
+export const isDemo = !isVercel && import.meta.env.VITE_DATA_MODE === "demo";
+export const client = new KomariClient((input, init) => {
+  if (!komariOrigin)
+    return Promise.reject(new Error("尚未配置 NAT VPS 的 Komari HTTPS 地址：请在 Vercel 设置 VITE_KOMARI_ORIGIN 并重新部署。"));
+  return fetch(publicApiUrl(komariOrigin, String(input)), {
+    ...init,
+    // Vercel only reads public status APIs; never send admin session cookies cross-site.
+    credentials: isVercel ? "omit" : "same-origin",
+  });
+});
 export function useProbe() {
   const [nodes, setNodes] = useState<NodeInfo[]>([]),
     [site, setSite] = useState<SiteInfo | null>(null),
@@ -56,13 +72,16 @@ export function useProbe() {
         if (!active) return;
         setNodes(n);
         setSite(s);
-        stop = subscribeLive(setLive, setConnection);
+        if (!komariOrigin) return;
+        stop = subscribeLive(setLive, setConnection, {
+          url: publicSocketUrl(komariOrigin),
+        });
       })
       .catch((e) => {
         if (active)
           setError(
             controller.signal.reason?.name === "TimeoutError"
-              ? "连接超时，请检查本地 Komari"
+              ? (isVercel ? "连接超时：请检查 Cloudflare Tunnel 和 Komari HTTPS 地址" : "连接超时，请检查本地 Komari")
               : e instanceof Error
                 ? e.message
                 : "连接失败",

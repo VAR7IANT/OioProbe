@@ -50,6 +50,12 @@ docker stop oioprobe
 停止容器保留命名卷数据；再次启动使用 `docker start oioprobe`。
 本阶段仅完成原生二进制与主题的隔离验收，Docker 指令按 [Komari 官方部署方式](https://www.komari.wiki/en/install/docker) 编写，尚未做 Docker 实机部署验收。
 
+## Vercel 前端 + NAT 后端（公开实时监控）
+
+前端可单独托管 Vercel，NAT VPS 使用 Cloudflare Tunnel 提供独立 HTTPS / WSS 后端。Vercel 环境变量 `VITE_KOMARI_ORIGIN` 必须设置为 Tunnel 的公网 HTTPS Origin，且需在 Komari 后台分别将 Vercel 网站 Origin 加入 CORS 与 WebSocket 白名单。未配置或连接失败时**不会显示演示数据**。
+
+详细部署、安全与验收说明：[Vercel + NAT 部署指南](docs/VERCEL-NAT.md)。
+
 ## 本地开发
 
 Node.js 22+，Python 3（用于主题打包与内核下载）。

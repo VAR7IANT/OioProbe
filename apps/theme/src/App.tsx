@@ -31,7 +31,7 @@ import {
   type NodeInfo,
   type HistoryPoint,
 } from "@oioprobe/komari-client";
-import { useProbe, client, isDemo } from "./useProbe";
+import { useProbe, client, isDemo, isVercel, adminHref } from "./useProbe";
 import { demoHistory } from "./demo";
 import { Button } from "./components/ui/button";
 import { bytes, Meter, NodeCard, Status } from "./components/Metrics";
@@ -143,7 +143,7 @@ export default function App() {
               {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
             </Button>
             <Button variant="outline" asChild className="admin-button">
-              <a href="/admin">管理</a>
+              <a href={adminHref ?? "#/settings"} target={isVercel ? "_blank" : undefined} rel={isVercel ? "noopener noreferrer" : undefined}>管理</a>
             </Button>
             <Button
               variant="ghost"
@@ -191,10 +191,10 @@ export default function App() {
               <div>
                 <Button onClick={probe.retry}>重试连接</Button>
                 <Button asChild variant="outline">
-                  <a href="/admin">前往原生管理登录</a>
+                  <a href={adminHref ?? "#/settings"} target={isVercel ? "_blank" : undefined} rel={isVercel ? "noopener noreferrer" : undefined}>前往原生管理登录</a>
                 </Button>
               </div>
-              <small>请确认本地 Komari 正在运行，且 /api 代理配置正确。</small>
+              <small>{isVercel ? "请检查 VITE_KOMARI_ORIGIN、Cloudflare Tunnel，以及 Komari 的 CORS / WebSocket Origin 允许列表。" : "请确认本地 Komari 正在运行，且 /api 代理配置正确。"}</small>
             </div>
           ) : probe.loading ? (
             <div className="loading-state" role="status">
@@ -756,7 +756,7 @@ function Settings({
           <b>技术基线 + 页面骨架</b>
         </div>
         <Button asChild variant="outline">
-          <a href="/admin" target="_blank" rel="noreferrer">
+          <a href={adminHref ?? "#/settings"} target="_blank" rel="noopener noreferrer">
             打开原生管理
             <ExternalLink size={14} />
           </a>
