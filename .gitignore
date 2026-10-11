@@ -1,0 +1,10 @@
+node_modules/
+.env.local
+.env.development
+.env.production
+apps/theme/dist/
+artifacts/
+.local/
+test-results/
+playwright-report/
+*.log
