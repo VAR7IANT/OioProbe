@@ -8,4 +8,5 @@ artifacts/
 .local/
 test-results/
 playwright-report/
+evidence/grok-ui/browser-results.json
 *.log

@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:browser": "playwright test",
+    "test:grok-ui": "playwright test -c playwright.grok-ui.config.ts",
     "test:compat": "node --import tsx scripts/compat.ts",
     "theme:pack": "npm run build && python3 scripts/package-theme.py",
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
