@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/komari-monitor/komari",
+  "version": "1.5.1",
+  "commit": "f0cc0fba38ce161935372633cae5248c934e2b23",
+  "releasePublishedAt": "2026-09-24T15:21:45Z",
+  "linuxAmd64": {
+    "url": "https://github.com/komari-monitor/komari/releases/download/1.5.1/komari-linux-amd64",
+    "sha256": "469d5bf8299667639fd9ad4c5523344abee2287337a448d886775b3dce9817d2"
+  },
+  "verifiedAt": "2026-10-10",
+  "strategy": "unmodified upstream binary; native REST and request-response WebSocket; no server fork"
+}

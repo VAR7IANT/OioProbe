@@ -1,0 +1,9 @@
+{
+  "name": "OioProbe",
+  "short": "oioprobe",
+  "description": "Your servers, at a glance. 原创轻量 VPS 监控主题。",
+  "version": "0.1.1",
+  "author": "Roiues",
+  "url": "https://github.com/VAR7IANT/OioProbe",
+  "preview": "dist/favicon.svg"
+}

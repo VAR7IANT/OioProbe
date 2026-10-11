@@ -1,0 +1,71 @@
+{
+  "kernel": "1.5.1",
+  "commit": "f0cc0fba38ce161935372633cae5248c934e2b23",
+  "scope": "loopback disposable kernel; synthetic nodes; no real agent or production",
+  "checks": [
+    {
+      "name": "pinned native 1.5.1 version",
+      "passed": true
+    },
+    {
+      "name": "public settings envelope",
+      "passed": true
+    },
+    {
+      "name": "empty node list",
+      "passed": true
+    },
+    {
+      "name": "native HttpOnly session login",
+      "passed": true
+    },
+    {
+      "name": "visible list, hidden filtering and secret redaction",
+      "passed": true
+    },
+    {
+      "name": "REST and public RPC2 parity",
+      "passed": true
+    },
+    {
+      "name": "synthetic v2 report ingestion",
+      "passed": true
+    },
+    {
+      "name": "native WS get envelope, online IDs and byte metric values",
+      "passed": true
+    },
+    {
+      "name": "native historical load response",
+      "passed": true
+    },
+    {
+      "name": "native ping history response",
+      "passed": true
+    },
+    {
+      "name": "native ping tasks response",
+      "passed": true
+    },
+    {
+      "name": "native theme selection, HTML and JS/CSS asset serving",
+      "passed": true
+    },
+    {
+      "name": "theme favicon serving",
+      "passed": true
+    },
+    {
+      "name": "native admin UI remains available",
+      "passed": true
+    },
+    {
+      "name": "Chromium end-to-end: native installed theme, live CPU, detail history and no page errors",
+      "passed": true
+    },
+    {
+      "name": "private site blocks unauthenticated nodes",
+      "passed": true
+    }
+  ]
+}

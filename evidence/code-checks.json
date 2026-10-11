@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-10",
+  "scope": "Phase 0 and Phase 1; UI revision 0.1.1; local only",
+  "typecheck": {
+    "command": "npm run typecheck",
+    "exitCode": 0
+  },
+  "lint": {
+    "command": "npm run lint",
+    "exitCode": 0
+  },
+  "unit": {
+    "command": "npm test",
+    "passed": 29,
+    "failed": 0
+  },
+  "build": {
+    "command": "npm run build",
+    "exitCode": 0,
+    "mode": "live",
+    "jsGzipBytesApprox": 126470,
+    "cssGzipBytesApprox": 6950
+  },
+  "browser": {
+    "passed": 24,
+    "failed": 0,
+    "projects": [
+      "chromium-desktop",
+      "webkit-mobile",
+      "firefox-desktop"
+    ]
+  },
+  "native": {
+    "passed": 16,
+    "failed": 0
+  },
+  "productionNodesConnected": false,
+  "productionDeployment": false
+}
