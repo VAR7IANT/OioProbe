@@ -57,10 +57,16 @@ Firefox 在当前容器使用测试进程 sandbox 环境兼容选项；WebKit �
 ## main 与推送
 
 本地直接 main 开发并提交，无 feature/review 分支。
-GitHub 连接对 VAR7IANT/OioProbe 的查询均返回 404；当前仓库可能尚未创建或未授权该连接。
-当前可用 GitHub 能力不包含创建仓库；本地 Git 没有可用的 GitHub 写入凭据。
-因此远端推送是未完成项，不能将本地提交等同于已推送。
-源码交付包包含 main Git bundle，可恢复已提交的代码和验收证据；提供可访问可写远端后继续推送。
+2026-10-11，用户确认目标仓库 https://github.com/VAR7IANT/OioProbe 后，已通过有写入权限的 GitHub 连接将全部源码和验收证据提交到 main。
+终端没有 GitHub 写入凭据，因此采用 Git Data API 导入；远端提交号与原本两次本地提交不同。
+
+- 已验收本地提交：`971e54fcdaa0d49ec7cfdada83cf2e8bdcd38509`。
+- 对应远端导入提交：`6781553566c4aa690148acc9f8bf9bd8c10ecf4f`。
+- 双方 Git tree 完全相同：`a7c599b3daa985544e8e98533c76b3c9c0e85756`，包含全部 64 个文件。
+- 原始本地历史保留在交付的 Git bundle，以及本地 `refs/archive/oioprobe-local-main`。
+- 本地 main 已同步远端并跟踪 origin/main；没有接入生产节点或部署生产环境。
+
+GitHub Actions 配置已提交；交付时查询未发现运行记录，不能把本地通过等同于远端 CI 通过。
 
 ## UI 修订 0.1.1
 
