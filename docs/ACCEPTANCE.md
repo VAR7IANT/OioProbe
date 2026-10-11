@@ -52,7 +52,7 @@ Firefox 在当前容器使用测试进程 sandbox 环境兼容选项；WebKit �
 - 没有真实 VPS / 原生 Agent 采集对照，也没有生产节点或生产部署。
 - 没有 24h 稳定性、真实通知投递、完整 Ping/丢包或备份恢复验收。
 - 当前曲线为基础 CPU 接入；完整图表/网络页/告警功能按 PHASES.md 后置。
-- CI 配置已写入，尚未在远端 GitHub Actions 执行。
+- GitHub Actions 已完成远端验证，记录见下方。
 
 ## main 与推送
 
@@ -66,7 +66,11 @@ Firefox 在当前容器使用测试进程 sandbox 环境兼容选项；WebKit �
 - 原始本地历史保留在交付的 Git bundle，以及本地 `refs/archive/oioprobe-local-main`。
 - 本地 main 已同步远端并跟踪 origin/main；没有接入生产节点或部署生产环境。
 
-GitHub Actions 配置已提交；交付时查询未发现运行记录，不能把本地通过等同于远端 CI 通过。
+2026-10-11，GitHub Actions 对 `8a1456940ea8e6e8c1ba2681acfbea6fdb7a9d87` 完成验证，全部步骤成功：npm ci、类型/Lint/单元/构建检查、Chromium/Firefox/WebKit 浏览器测试、Komari 下载校验与原生兼容性检查、主题 ZIP 打包和证据上传。
+
+- 远端 CI：[Phase baseline verification #2](https://github.com/VAR7IANT/OioProbe/actions/runs/38117606417)。
+- 远端产物：该运行的 `phase-baseline-evidence`，包含 CI 生成的证据、主题包和浏览器报告。
+- 本次 CI 记录更新仅改本文档；提交使用 `[skip ci]` 避免重复执行未变动的代码测试。
 
 ## UI 修订 0.1.1
 
