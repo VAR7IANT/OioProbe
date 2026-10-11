@@ -5,6 +5,46 @@ Your servers, at a glance. 面向个人 VPS 的原创轻量监控界面。
 **Phase 0 / Phase 1**：Komari 1.5.1 原生内核 + React 19 / TypeScript / Vite 自定义主题。
 不 fork Server/Agent，不重写采集、鉴权或数据库；本阶段不接生产节点、不部署生产。
 
+## 一键部署与主题启用
+
+在准备好的测试服务器上执行（需已安装 Docker，并有运行 Docker 的权限）。
+以下单条命令启动 Komari 原生面板，固定使用已验收的 **1.5.1**，数据持久化到 Docker 命名卷：
+
+```bash
+docker run -d --name oioprobe --restart unless-stopped -p 25774:25774 -v oioprobe-data:/app/data ghcr.io/komari-monitor/komari:1.5.1
+```
+
+浏览器打开 `http://服务器IP:25774`，按首次访问引导创建管理员账号。
+端口需要可从访问端到达；若已存在同名容器，先检查现有实例，不要重复执行创建命令。
+已有 Komari 1.5.1 的用户直接进行下面的主题安装，无需再启动一个面板。
+
+### 安装 OioProbe 主题
+
+上面的命令启动内核；OioProbe 界面通过原生后台安装主题包后启用。
+
+1. 打开仓库 [Actions](https://github.com/VAR7IANT/OioProbe/actions)，选择最近一次成功且运行了主题打包步骤的 `Phase baseline verification`，下载 `phase-baseline-evidence` 并解压。
+2. 在解压后的 `artifacts/` 中找到 `oioprobe-theme-0.1.1.zip`。上传这个主题 ZIP，不要上传外层证据 ZIP 或 GitHub 源码 ZIP。
+3. 登录 `http://服务器IP:25774/admin`，在主题管理中上传主题包，选择并启用 **OioProbe**，返回首页查看。
+
+也可以在已安装 Git、Node.js 22+ 和 Python 3 的电脑上一条命令生成主题包：
+
+```bash
+git clone https://github.com/VAR7IANT/OioProbe.git && cd OioProbe && npm ci && npm run theme:pack
+```
+
+生成位置为 `artifacts/oioprobe-theme-0.1.1.zip`，按上面的后台步骤上传启用。
+新面板尚未添加节点时会显示空状态；Agent 安装命令由原生后台为各节点生成，本文不提供通用 Token，也不自动接入节点。
+
+查看运行日志与停止测试面板：
+
+```bash
+docker logs --tail 100 oioprobe
+docker stop oioprobe
+```
+
+停止容器保留命名卷数据；再次启动使用 `docker start oioprobe`。
+本阶段仅完成原生二进制与主题的隔离验收，Docker 指令按 [Komari 官方部署方式](https://www.komari.wiki/en/install/docker) 编写，尚未做 Docker 实机部署验收。
+
 ## 本地开发
 
 Node.js 22+，Python 3（用于主题打包与内核下载）。
@@ -27,7 +67,7 @@ npx playwright install --with-deps chromium firefox webkit
 npm run test:browser                 # 桌面 + 移动布局 / 状态 / 搜索 / 路由
 python3 scripts/fetch-komari.py      # 锁定版本 + 校验官方 SHA256
 npm run test:compat                  # 启动一次性本地内核；真实 HTTP / WS 验证
-npm run theme:pack                   # artifacts/oioprobe-theme-0.1.0.zip
+npm run theme:pack                   # artifacts/oioprobe-theme-0.1.1.zip
 ```
 
 `test:compat` 只启动校验过的内核、绑定 loopback，在 `.local/` 中创建临时 SQLite 数据；
