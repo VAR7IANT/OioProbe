@@ -10,6 +10,14 @@ Your servers, at a glance. 面向个人 VPS 的原创轻量监控界面。
 当前主题 **0.1.2**：雾白与石墨双主题、点阵地图、三列资源卡片。
 [桌面截图](evidence/chromium-desktop-overview-1440.png) · [手机截图](evidence/chromium-desktop-overview-390.png) · [深色截图](evidence/chromium-desktop-overview-dark.png)
 
+## Grok UI
+
+`Grok-UI` 分支另外带有 `apps/grok-ui`：一套独立的公开状态演示（纸色账页与节点曲线）。它不替换上面的主题包，也不连接 Komari 内核，页面数字都是本地模拟。
+
+```bash
+npm run dev -w @oioprobe/grok-ui
+```
+
 ## 一键部署与主题启用
 
 在准备好的测试服务器上执行（需已安装 Docker，并有运行 Docker 的权限）。

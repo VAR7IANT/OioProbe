@@ -3,6 +3,7 @@ node_modules/
 .env.development
 .env.production
 apps/theme/dist/
+apps/grok-ui/dist/
 artifacts/
 .local/
 test-results/
