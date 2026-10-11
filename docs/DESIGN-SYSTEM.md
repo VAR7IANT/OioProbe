@@ -1,26 +1,35 @@
 # 原创 UI 设计系统
 
-品牌 OioProbe，标语 **Your servers, at a glance.**。以原创心电式观测标记、轻玻璃容器与紧凑指标卡片构建视觉识别，不复制 jbxx.de 或第三方主题源码。
+品牌 OioProbe，标语 **Your servers, at a glance.**。以原创心电式观测标记、雾白画布和清晰的资源数字建立视觉识别；不复制第三方主题源码、背景图或组件。
+
+## 0.1.2 视觉调整
+
+- 顶部品牌、居中分段导航、右侧操作构成稳定的三段布局。
+- 概况去掉嵌套卡片，使用细分隔线与 25–34px 数字区分层级。
+- 地图采用本地点阵地理轮廓，桌面左侧为地区概况，右侧显示地图；手机保留地图和筛选，省去介绍文案。
+- 桌面节点三列、中屏两列、手机一列。节点卡片按身份、资源、流量、运行时间排列；CPU/内存/磁盘横排，关键读数 20–22px。
+- 离线/过期节点仍显示空读数；没有装饰性假曲线或虚构网络连线。
+- 清理旧侧栏和重复覆盖样式，深浅主题共用同一套结构。
 
 | Token | 浅色 | 深色 | 用途 |
 | --- | --- | --- | --- |
-| --background | #f6f8fc | #141820 | 雾白 / 石墨画布 |
-| --surface | #ffffff | #1b212b | 内容卡片 |
-| --text | #252d3c | #e8edf7 | 主要文字 |
-| --muted | #566377 | #a0adbf | 次级信息 |
-| --accent | #2c5dde | #82a7ff | 主操作 / 指标 |
-| --border | #e7ebf2 | #303947 | 细边界 |
-| --success | #137a61 | #62d4b0 | 在线 |
-| --warning | #986514 | #e8b565 | 过期 / 高占用 |
+| --background | #f5f7fa | #111722 | 雾白 / 石墨画布 |
+| --surface | #ffffff | #1a2331 | 内容卡片 |
+| --text | #202939 | #e9edf6 | 主要文字 |
+| --muted | #657286 | #a8b5c9 | 次级信息 |
+| --accent | #315cda | #9bb8ff | 主操作 / 指标 |
+| --border | #e4e9f0 | #2b384a | 细边界 |
+| --success | #14785f | #71d8b8 | 在线 |
+| --warning | #956018 | #efbf79 | 过期 / 高占用 |
+| --map-dot | #9baccc | #566c8e | 地理点阵 |
 
-节点卡片圆角 12px，概况/地图容器 16px，控件 8px；间距 4/8/12/16/24px，正文系统字体。
-顶部导航，<=680px 下拉移动导航；桌面四列节点、中屏三列/两列、手机单列；320px 开始可操作。
-地图采用 D3 地理投影 + world-atlas/Natural Earth 本地地理轮廓，支持 2D 世界图、3D 球面投影视图、旋转/缩放/重置/收起及地区筛选。无需 WebGL、第三方瓦片、IP 定位或 API key。地区标记使用参考位置，不声称节点精确坐标。未收录参考位置的地区仍可通过标签筛选。
+节点圆角 18px，概况/地图容器 20px，主要控件 10px；间距以 4/8/12/16/24px 为基准。正文系统字体，数字使用 tabular-nums。
+顶部导航在 <=600px 切换为下拉菜单；320px 起可操作。移动端搜索独占一行，排序/分组/视图操作排成下一行。
 
-首页依次为品牌顶部导航、紧凑标题、节点/网络双概况、全宽地区图、筛选排序工具栏与密集节点卡片。移除后台工作空间/固定侧栏/在线比例圆环，恢复参考站的探针信息结构；保持原创样式，不复制第三方背景图、CSS 或主题代码。
+地图采用 D3 地理投影 + world-atlas/Natural Earth 本地轮廓，支持 2D 世界图、3D 球面投影、旋转/缩放/重置/收起及地区筛选。无需 WebGL、第三方瓦片、IP 定位或 API key。标记为地区参考位置，不声称节点精确坐标；未收录参考坐标的地区仍可用标签筛选。
 
-组件：Button（Slot + cva，shadcn 风格）、Stat、Meter、Status、NodeCard、World、空/加载/错误状态。
-深浅色用 CSS variables；localStorage 仅保存版本化显示偏好，浏览器禁存储时仍可使用。
-状态同时使用文字和形状，不单靠颜色；可见键盘焦点、控件 aria-label、skip link、导航 aria-current。
-只使用轻微 hover；prefers-reduced-motion 下关闭 transition。无粒子、强渐变或循环装饰动画。
+组件：Button（Slot + cva）、Meter、Status、NodeCard、World、空/加载/错误状态。
+深浅色使用 CSS variables；localStorage 仅保存版本化显示偏好，浏览器禁存储时仍可使用。
+状态同时使用文字与圆点，提供可见键盘焦点、控件 aria-label、skip link 和导航 aria-current。
+卡片 hover 仅轻移 2px；prefers-reduced-motion 下关闭 transition。无循环装饰动画。
 `#/design` 可查看实际 tokens 与组件状态。

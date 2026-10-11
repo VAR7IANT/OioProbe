@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-10",
-  "scope": "Phase 0 and Phase 1; UI revision 0.1.1; local only",
+  "date": "2026-10-11",
+  "scope": "Phase 0 and Phase 1; UI refinement 0.1.2; local isolated validation",
   "typecheck": {
     "command": "npm run typecheck",
     "exitCode": 0
@@ -18,8 +18,8 @@
     "command": "npm run build",
     "exitCode": 0,
     "mode": "live",
-    "jsGzipBytesApprox": 126470,
-    "cssGzipBytesApprox": 6950
+    "jsGzipBytesApprox": 126622,
+    "cssGzipBytesApprox": 6889
   },
   "browser": {
     "passed": 24,
@@ -28,10 +28,11 @@
       "chromium-desktop",
       "webkit-mobile",
       "firefox-desktop"
-    ]
+    ],
+    "accessibility": "WCAG 2 A/AA + 2.1 AA; light and dark"
   },
   "native": {
-    "passed": 16,
+    "passed": 17,
     "failed": 0
   },
   "productionNodesConnected": false,

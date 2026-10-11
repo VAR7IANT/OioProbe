@@ -144,84 +144,110 @@ export function World({
       </div>
       {!collapsed && (
         <>
-          <div className={`geo-canvas ${globe ? "globe" : "flat"}`}>
-            <svg
-              viewBox="0 0 1000 370"
-              role="img"
-              aria-label={globe ? "全球节点球面投影地图" : "全球节点地理地图"}
-              onPointerDown={(e) => {
-                if (globe) {
-                  drag.current = { x: e.clientX, y: e.clientY, rotation };
-                  e.currentTarget.setPointerCapture(e.pointerId);
-                }
-              }}
-              onPointerMove={(e) => {
-                const d = drag.current;
-                if (d)
-                  setRotation([
-                    d.rotation[0] + (e.clientX - d.x) * 0.4,
-                    Math.max(
-                      -80,
-                      Math.min(80, d.rotation[1] - (e.clientY - d.y) * 0.3),
-                    ),
-                  ]);
-              }}
-              onPointerUp={() => {
-                drag.current = null;
-              }}
-              onPointerCancel={() => {
-                drag.current = null;
-              }}
-            >
-              <path className="geo-ocean" d={path({ type: "Sphere" }) || ""} />
-              <path className="geo-grid" d={path(geoGraticule10()) || ""} />
-              <path className="geo-land" d={path(land) || ""} />
-            </svg>
-            {counts.map(({ code, count }) => {
-              const coords = locations[code];
-              if (
-                !coords ||
-                (globe &&
-                  geoDistance(coords, [-rotation[0], -rotation[1]]) >
-                    Math.PI / 2)
-              )
-                return null;
-              const point = projection(coords);
-              if (
-                !point ||
-                point[0] < 0 ||
-                point[0] > 1000 ||
-                point[1] < 0 ||
-                point[1] > 370
-              )
-                return null;
-              return (
-                <button
-                  key={code}
-                  className={`geo-pin ${selected === code ? "selected" : ""}`}
-                  style={{
-                    left: `${point[0] / 10}%`,
-                    top: `${point[1] / 3.7}%`,
-                  }}
-                  aria-label={`地图筛选${regionName(code)}节点`}
-                  aria-pressed={selected === code}
-                  onClick={() => select(code)}
-                >
-                  <span className="pin-dot" />
-                  <span className="pin-label">
-                    {code} <b>{count}</b>
-                  </span>
-                </button>
-              );
-            })}
+          <div className="map-stage">
             <div className="map-caption">
-              <span className="map-kicker">GLOBAL PRESENCE</span>
-              <p>{globe ? "连接，遍布世界。" : "每一处连接，都在这里。"}</p>
+              <span className="map-kicker">A SMALLER WORLD</span>
+              <p>
+                每一处连接，
+                <br />
+                都清晰可见。
+              </p>
+              <div className="map-coverage">
+                <strong>{counts.length}</strong>
+                <span>个地区 · {nodes.length} 个节点</span>
+              </div>
               <small>
-                {globe
-                  ? "拖动地球旋转 · 地区标签筛选"
-                  : "点击地区或地图标记筛选节点"}
+                {globe ? "拖动地球，探索节点分布" : "选择地区，聚焦你的节点"}
               </small>
+            </div>
+            <div className={`geo-canvas ${globe ? "globe" : "flat"}`}>
+              <svg
+                viewBox="0 0 1000 370"
+                role="img"
+                aria-label={globe ? "全球节点球面投影地图" : "全球节点地理地图"}
+                onPointerDown={(e) => {
+                  if (globe) {
+                    drag.current = { x: e.clientX, y: e.clientY, rotation };
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                  }
+                }}
+                onPointerMove={(e) => {
+                  const d = drag.current;
+                  if (d)
+                    setRotation([
+                      d.rotation[0] + (e.clientX - d.x) * 0.4,
+                      Math.max(
+                        -80,
+                        Math.min(80, d.rotation[1] - (e.clientY - d.y) * 0.3),
+                      ),
+                    ]);
+                }}
+                onPointerUp={() => {
+                  drag.current = null;
+                }}
+                onPointerCancel={() => {
+                  drag.current = null;
+                }}
+              >
+                <defs>
+                  <pattern
+                    id="atlas-dots"
+                    width="4"
+                    height="4"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <circle cx="2" cy="2" r="0.9" fill="var(--map-dot)" />
+                  </pattern>
+                </defs>
+                <path
+                  className="geo-ocean"
+                  d={path({ type: "Sphere" }) || ""}
+                />
+                <path className="geo-grid" d={path(geoGraticule10()) || ""} />
+                <path className="geo-land" d={path(land) || ""} />
+                <path
+                  className="geo-texture"
+                  d={path(land) || ""}
+                  fill="url(#atlas-dots)"
+                />
+              </svg>
+              {counts.map(({ code, count }) => {
+                const coords = locations[code];
+                if (
+                  !coords ||
+                  (globe &&
+                    geoDistance(coords, [-rotation[0], -rotation[1]]) >
+                      Math.PI / 2)
+                )
+                  return null;
+                const point = projection(coords);
+                if (
+                  !point ||
+                  point[0] < 0 ||
+                  point[0] > 1000 ||
+                  point[1] < 0 ||
+                  point[1] > 370
+                )
+                  return null;
+                return (
+                  <button
+                    key={code}
+                    className={`geo-pin ${selected === code ? "selected" : ""}`}
+                    style={{
+                      left: `${point[0] / 10}%`,
+                      top: `${point[1] / 3.7}%`,
+                    }}
+                    aria-label={`地图筛选${regionName(code)}节点`}
+                    aria-pressed={selected === code}
+                    onClick={() => select(code)}
+                  >
+                    <span className="pin-dot" />
+                    <span className="pin-label">
+                      {code} <b>{count}</b>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="map-footer">

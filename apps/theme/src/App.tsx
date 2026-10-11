@@ -162,11 +162,13 @@ export default function App() {
         <main id="main-content" tabIndex={-1}>
           <div className="page-heading">
             <div>
-              <div className="eyebrow">YOUR SERVERS, AT A GLANCE.</div>
+              <div className="eyebrow">
+                <span /> INFRASTRUCTURE OVERVIEW
+              </div>
               <h1>{page === "overview" ? "服务器总览" : title}</h1>
               <p>
                 {page === "overview"
-                  ? "每个节点的状态，尽在这一眼。"
+                  ? "连接世界的每一处，掌握此刻的每一刻。"
                   : "资源、连接与变化，一眼掌握。"}
               </p>
             </div>
@@ -240,7 +242,8 @@ export default function App() {
               >
                 Komari
               </a>
-              <span className="footer-dot">·</span> Phase 0 / 1
+              <span className="footer-dot">·</span>
+              <a href="#/design">设计系统</a>
             </span>
           </footer>
         </main>
@@ -488,7 +491,7 @@ function NodeList({
           <p>
             {probe.nodes.length
               ? "试试其他关键词，或重置筛选条件。"
-              : "本阶段尚未接入生产节点；空列表是正常状态。"}
+              : "连接首个节点后，资源和在线状态将在这里显示。"}
           </p>
           {probe.nodes.length ? (
             <Button
@@ -809,9 +812,9 @@ function Design() {
           <h2>布局与文字</h2>
           <dl>
             <dt>卡片圆角</dt>
-            <dd>12px 节点 / 16px 容器</dd>
+            <dd>18px 节点 / 20px 容器</dd>
             <dt>控件圆角</dt>
-            <dd>8px</dd>
+            <dd>10px</dd>
             <dt>间距基准</dt>
             <dd>4 / 8 / 12 / 16 / 24px</dd>
             <dt>正文</dt>

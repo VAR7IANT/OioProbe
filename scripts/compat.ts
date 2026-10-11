@@ -1,7 +1,7 @@
 /** Isolated native-kernel integration. Spawns ONLY a verified local binary on loopback. */
 import WebSocket from "ws";
 import { chromium } from "@playwright/test";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFile, mkdir, mkdtemp, cp, writeFile, rm } from "node:fs/promises";
 import { createHash, randomBytes } from "node:crypto";
 import { resolve } from "node:path";
@@ -28,6 +28,26 @@ assert.equal(
 );
 await mkdir(resolve(root, ".local"), { recursive: true });
 const cwd = await mkdtemp(resolve(root, ".local/compat-"));
+// Disable the upstream GeoIP provider before startup; its default uses an
+// external service. This fixture is a disposable SQLite database, not user data.
+await mkdir(resolve(cwd, "data"), { recursive: true });
+const seed = spawnSync(
+  "python3",
+  [
+    "-c",
+    `
+import sqlite3, sys
+with sqlite3.connect(sys.argv[1]) as db:
+    db.execute('CREATE TABLE configs (key TEXT PRIMARY KEY, value TEXT)')
+    db.executemany('INSERT INTO configs (key, value) VALUES (?, ?)', [
+        ('geo_ip_enabled', 'false'), ('geo_ip_provider', '"empty"')
+    ])
+`,
+    resolve(cwd, "data/komari.db"),
+  ],
+  { encoding: "utf8" },
+);
+assert.equal(seed.status, 0, seed.stderr || "failed to seed isolated settings");
 const listener = createServer();
 await new Promise<void>((res) => listener.listen(0, "127.0.0.1", res));
 const address = listener.address();
@@ -37,6 +57,16 @@ await new Promise<void>((res) => listener.close(() => res()));
 const base = `http://127.0.0.1:${port}`;
 const kernel = spawn(binary, ["server", "--listen", `127.0.0.1:${port}`], {
   cwd,
+  // Fail closed for upstream HTTP(S) calls; all test traffic uses loopback.
+  env: {
+    ...process.env,
+    HTTP_PROXY: "http://127.0.0.1:9",
+    HTTPS_PROXY: "http://127.0.0.1:9",
+    http_proxy: "http://127.0.0.1:9",
+    https_proxy: "http://127.0.0.1:9",
+    NO_PROXY: "127.0.0.1,localhost,::1",
+    no_proxy: "127.0.0.1,localhost,::1",
+  },
   stdio: ["ignore", "pipe", "pipe"],
 });
 let logs = "";
@@ -110,6 +140,12 @@ try {
     .join("; ");
   assert(cookie);
   check("native HttpOnly session login");
+  const settings = unwrap(
+    await raw("/api/admin/settings/", undefined, true),
+  ) as Record<string, unknown>;
+  assert.equal(settings.geo_ip_enabled, false);
+  assert.equal(settings.geo_ip_provider, "empty");
+  check("isolated fixture disables external GeoIP before startup");
   const visible = await raw(
     "/api/admin/client/add",
     { name: "OioProbe Synthetic" },
@@ -296,7 +332,7 @@ try {
         kernel: lock.version,
         commit: lock.commit,
         scope:
-          "loopback disposable kernel; synthetic nodes; no real agent or production",
+          "loopback disposable kernel; GeoIP disabled before startup; external HTTP(S) fails closed; synthetic nodes; no real agent or production",
         checks,
       },
       null,

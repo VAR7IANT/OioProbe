@@ -74,27 +74,27 @@ export function NodeCard({
     r = state === "online" ? live?.reports[node.uuid] : null;
   return (
     <a
-      className="node-card"
+      className={`node-card node-${state}`}
       href={`#/nodes/${encodeURIComponent(node.uuid)}`}
       aria-label={`查看 ${node.name}`}
     >
       <div className="node-card-top">
-        <span className="node-region">
-          <span aria-hidden="true">
-            <RegionFlag code={node.region} />
-          </span>
-          {node.region || "未知地区"}
+        <span className="node-emblem" aria-hidden="true">
+          <RegionFlag code={node.region} />
         </span>
+        <div className="node-identity">
+          <h3>{node.name}</h3>
+          <div className="node-sub">
+            <span>{node.region || "未知地区"}</span>
+            <span>·</span>
+            <span>{node.group}</span>
+          </div>
+        </div>
         <Status state={state} />
       </div>
-      <h3>
-        {node.name}
-        <ChevronRight size={14} />
-      </h3>
-      <div className="node-sub">
+      <div className="node-platform">
         <span>{node.os || "系统未知"}</span>
-        <span>·</span>
-        {node.group}
+        <ChevronRight size={14} />
       </div>
       <div className="node-meters">
         <div className="resource-row">

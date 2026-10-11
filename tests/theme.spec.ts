@@ -169,7 +169,7 @@ test("live nested v2 data, stale reports never shown as current", async ({
   await expect(page.getByText("25.0%")).toHaveCount(0);
 });
 
-test("keyboard focus, navigation landmarks and WCAG AA baseline", async ({
+test("keyboard focus, navigation landmarks and light/dark WCAG AA baseline", async ({
   page,
 }) => {
   await page.goto("/#/overview");
@@ -178,15 +178,19 @@ test("keyboard focus, navigation landmarks and WCAG AA baseline", async ({
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
   await expect(page.getByRole("heading", { name: "服务器总览" })).toBeVisible();
-  const result = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-    .analyze();
-  expect(
-    result.violations.map((v) => ({
-      id: v.id,
-      nodes: v.nodes.map((n) => n.target),
-    })),
-  ).toEqual([]);
+  for (const theme of ["light", "dark"]) {
+    if (theme === "dark")
+      await page.getByRole("button", { name: "切换深色主题" }).click();
+    const result = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
+    expect(
+      result.violations.map((v) => ({
+        id: v.id,
+        nodes: v.nodes.map((n) => n.target),
+      })),
+    ).toEqual([]);
+  }
 });
 
 test("public probe layout, geographic filter, collapse, zoom and globe", async ({

@@ -1,7 +1,7 @@
 {
   "kernel": "1.5.1",
   "commit": "f0cc0fba38ce161935372633cae5248c934e2b23",
-  "scope": "loopback disposable kernel; synthetic nodes; no real agent or production",
+  "scope": "loopback disposable kernel; GeoIP disabled before startup; external HTTP(S) fails closed; synthetic nodes; no real agent or production",
   "checks": [
     {
       "name": "pinned native 1.5.1 version",
@@ -17,6 +17,10 @@
     },
     {
       "name": "native HttpOnly session login",
+      "passed": true
+    },
+    {
+      "name": "isolated fixture disables external GeoIP before startup",
       "passed": true
     },
     {

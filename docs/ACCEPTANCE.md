@@ -1,17 +1,17 @@
 # Phase 0 / Phase 1 验收记录
 
-日期：2026-10-10。测试范围为本地隔离环境、合成节点与显式演示数据。
+更新：2026-10-11，UI 0.1.2。测试范围为本地隔离环境、合成节点与显式演示数据。
 
 | 检查 | 结果 | 证据 |
 | --- | --- | --- |
 | TypeScript strict | PASS | npm run typecheck，退出 0 |
 | ESLint / React Hooks | PASS | npm run lint，退出 0 |
 | 单元与契约测试 | **29 / 29 PASS** | 26 项客户端契约/WS 生命周期 + 3 项指标展示 |
-| Vite 正式构建 | PASS | 默认 live；JS 376.70 kB / gzip 126.47 kB；CSS 31.24 kB / gzip 6.95 kB |
-| 原生 Komari 1.5.1 | **16 / 16 PASS** | evidence/native-compat.json |
+| Vite 正式构建 | PASS | 默认 live；JS 377.35 kB / gzip 126.62 kB；CSS 30.60 kB / gzip 6.89 kB |
+| 原生 Komari 1.5.1 | **17 / 17 PASS** | evidence/native-compat.json |
 | 浏览器验收 | **24 / 24 PASS** | evidence/browser-results.json |
-| WCAG A/AA 自动扫描 | PASS | 三个浏览器项目中的键盘/axe 基础检查 |
-| 主题打包 | PASS | artifacts/oioprobe-theme-0.1.1.zip；ZIP 根 manifest + dist |
+| WCAG A/AA 自动扫描 | PASS | 三个浏览器项目中的键盘/axe 深浅色检查 |
+| 主题打包 | PASS | artifacts/oioprobe-theme-0.1.2.zip；ZIP 根 manifest + dist |
 
 ## 原生内核验证
 
@@ -54,7 +54,7 @@ Firefox 在当前容器使用测试进程 sandbox 环境兼容选项；WebKit �
 - 当前曲线为基础 CPU 接入；完整图表/网络页/告警功能按 PHASES.md 后置。
 - GitHub Actions 已完成远端验证，记录见下方。
 
-## main 与推送
+## 0.1.1 的 main 与推送记录
 
 本地直接 main 开发并提交，无 feature/review 分支。
 2026-10-11，用户确认目标仓库 https://github.com/VAR7IANT/OioProbe 后，已通过有写入权限的 GitHub 连接将全部源码和验收证据提交到 main。
@@ -77,3 +77,16 @@ Firefox 在当前容器使用测试进程 sandbox 环境兼容选项；WebKit �
 首版视觉未获用户认可。此次按原定 jbxx.de 产品结构修订为顶部导航、节点/网络双概况、全宽地区地图与密集节点卡片，保留 OioProbe 原创雾白/石墨/蓝视觉，不复制参考站图像或源码。
 新增本地地理轮廓、球面投影、筛选/排序、SVG 地区旗帜。球面视图使用 SVG 地理投影，不是 WebGL 三维场景；20 个地区参考位置，其他地区仍可用标签筛选。
 技术和浏览器检查通过，**不代表用户已认可视觉效果**。
+
+
+## UI 优化 0.1.2
+
+针对第二轮视觉反馈，调整数字层级、间距、圆角、阴影、导航与地图比例。桌面节点改为三列，CPU/内存/磁盘横排；移动端保留单列卡片并拆分筛选工具栏。地图为本地点阵地理轮廓。详细 tokens 与断点见 DESIGN-SYSTEM.md。
+
+- 29 项单元检查、24 项三浏览器场景、17 项原生兼容检查通过；没有生产节点或生产部署。
+- 增加深色总览、手机首屏、节点详情截图。桌面/移动总览及球面地图截图均已更新。
+- 三浏览器均检查深浅色 WCAG A/AA。首轮 WebKit 发现主题切换期间按钮背景渐变导致短暂对比度不足；移除背景色过渡后全套 24 项重跑通过。
+- 原生测试夹具在内核启动前关闭 GeoIP，使用空 provider，并让内核的外部 HTTP(S) 代理指向本地不可用端口；加入配置断言，避免测试向 GeoIP 服务查询 IP。原生二进制仍完全未修改。
+- 技术验收通过不代表用户已认可视觉效果。截图内均为显式演示或隔离合成数据。
+
+预览：[桌面](../evidence/chromium-desktop-overview-1440.png) · [手机](../evidence/chromium-desktop-overview-390.png) · [深色](../evidence/chromium-desktop-overview-dark.png) · [节点详情](../evidence/chromium-desktop-detail.png)。
