@@ -274,3 +274,80 @@ test("denser cards retain byte units, resource quantities and native uptime; sor
     "查看 Singapore · 01",
   );
 });
+
+test("system theme default, status counts, remembered view, menu escape", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/#/settings");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(
+    page.getByRole("button", { name: "跟随系统", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "浅色", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.getByRole("button", { name: "跟随系统", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/#/nodes");
+  const tabs = page.getByRole("group", { name: "节点状态筛选" });
+  await expect(
+    tabs.getByRole("button", { name: "离线", exact: true }),
+  ).toContainText("1");
+  await page.getByLabel("搜索节点").fill("tokyo");
+  await expect(
+    tabs.getByRole("button", { name: "全部节点", exact: true }),
+  ).toContainText("1");
+  await page.getByLabel("搜索节点").fill("");
+  await page.getByRole("button", { name: "列表视图" }).click();
+  await page.reload();
+  await expect(page.locator(".node-grid")).toHaveClass(/list-view/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "打开导航" }).click();
+  await expect(
+    page.getByRole("link", { name: "告警", exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("link", { name: "告警", exact: true }),
+  ).toBeHidden();
+});
+
+test("detail, list and settings pages meet WCAG AA in both themes", async ({
+  page,
+}) => {
+  await page.goto("/#/nodes");
+  await page.getByRole("button", { name: "列表视图" }).click();
+  for (const theme of ["light", "dark"]) {
+    await page.emulateMedia({ colorScheme: theme as "light" | "dark" });
+    for (const hash of ["#/nodes", "#/nodes/tokyo", "#/settings"]) {
+      await page.goto(`/${hash}`);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.locator(".panel, .node-card").first()).toBeVisible();
+      const result = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze();
+      expect(
+        result.violations.map((v) => ({
+          hash,
+          id: v.id,
+          nodes: v.nodes.map((n) => n.target),
+        })),
+      ).toEqual([]);
+    }
+  }
+});
+
+test("CPU history chart shows a crosshair tooltip on hover", async ({
+  page,
+}) => {
+  await page.goto("/#/nodes/tokyo");
+  const chart = page.getByRole("img", { name: "CPU 历史折线图" });
+  await expect(page.locator(".chart-tooltip")).toHaveCount(0);
+  await chart.hover();
+  await expect(page.locator(".chart-tooltip")).toContainText(/CPU \d+\.\d%/);
+  await page.getByRole("heading", { name: "CPU 历史" }).hover();
+  await expect(page.locator(".chart-tooltip")).toHaveCount(0);
+});

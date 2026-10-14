@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   nodeStatus,
   percent,
@@ -7,7 +8,6 @@ import {
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  ChevronRight,
   Clock3,
   Cpu,
   MemoryStick,
@@ -39,25 +39,40 @@ export function Status({ state }: { state: keyof typeof labels }) {
     </span>
   );
 }
+/** Usage level shared by meters: >80% warns, >=90% is critical. */
+export function level(value: number | null) {
+  return value == null
+    ? ""
+    : value >= 90
+      ? "critical"
+      : value > 80
+        ? "high"
+        : "";
+}
 export function Meter({
   label,
   value,
+  icon,
+  detail,
 }: {
   label: string;
   value: number | null;
+  icon?: ReactNode;
+  detail?: ReactNode;
 }) {
   return (
-    <div className="meter">
-      <div>
-        <span>{label}</span>
+    <div className={`meter ${level(value)}`}>
+      <div className="meter-head">
+        <span>
+          {icon}
+          {label}
+        </span>
         <b>{value == null ? "—" : `${value.toFixed(1)}%`}</b>
       </div>
-      <div className="meter-track">
-        <span
-          style={{ width: `${value ?? 0}%` }}
-          className={value != null && value > 80 ? "high" : ""}
-        />
+      <div className="meter-track" aria-hidden="true">
+        <span style={{ width: `${Math.min(100, value ?? 0)}%` }} />
       </div>
+      {detail != null ? <small>{detail}</small> : null}
     </div>
   );
 }
@@ -85,40 +100,47 @@ export function NodeCard({
         <div className="node-identity">
           <h3>{node.name}</h3>
           <div className="node-sub">
-            <span>{node.region || "未知地区"}</span>
-            <span>·</span>
-            <span>{node.group}</span>
+            {[node.region || "未知地区", node.group, node.os || "系统未知"]
+              .filter(Boolean)
+              .map((part, i) => (
+                <span key={i}>{part}</span>
+              ))}
           </div>
         </div>
         <Status state={state} />
       </div>
-      <div className="node-platform">
-        <span>{node.os || "系统未知"}</span>
-        <ChevronRight size={14} />
-      </div>
       <div className="node-meters">
-        <div className="resource-row">
-          <Cpu size={13} />
-          <Meter label="CPU" value={r?.cpu ?? null} />
-          <small>{node.cores} 核</small>
-        </div>
-        <div className="resource-row">
-          <MemoryStick size={13} />
-          <Meter label="内存" value={percent(r?.memory, node.memoryTotal)} />
-          <small>
-            {bytes(r?.memory)} / {bytes(node.memoryTotal)}
-          </small>
-        </div>
-        <div className="resource-row">
-          <HardDrive size={13} />
-          <Meter label="磁盘" value={percent(r?.disk, node.diskTotal)} />
-          <small>
-            {bytes(r?.disk)} / {bytes(node.diskTotal)}
-          </small>
-        </div>
+        <Meter
+          icon={<Cpu size={13} />}
+          label="CPU"
+          value={r?.cpu ?? null}
+          detail={`${node.cores} 核`}
+        />
+        <Meter
+          icon={<MemoryStick size={13} />}
+          label="内存"
+          value={percent(r?.memory, node.memoryTotal)}
+          detail={
+            <>
+              <span>{bytes(r?.memory)}</span> /{" "}
+              <span>{bytes(node.memoryTotal)}</span>
+            </>
+          }
+        />
+        <Meter
+          icon={<HardDrive size={13} />}
+          label="磁盘"
+          value={percent(r?.disk, node.diskTotal)}
+          detail={
+            <>
+              <span>{bytes(r?.disk)}</span> /{" "}
+              <span>{bytes(node.diskTotal)}</span>
+            </>
+          }
+        />
       </div>
       <div className="node-traffic">
-        <div>
+        <div className="traffic-down">
           <span>
             <ArrowDownLeft size={13} />
             下载
@@ -126,7 +148,7 @@ export function NodeCard({
           <b>{bytes(r?.down, true)}</b>
           <small>累计 {bytes(r?.totalDown)}</small>
         </div>
-        <div>
+        <div className="traffic-up">
           <span>
             <ArrowUpRight size={13} />
             上传
@@ -137,7 +159,7 @@ export function NodeCard({
       </div>
       <div className="node-bottom">
         <span>
-          <Clock3 size={12} />
+          <Clock3 size={13} />
           {r?.uptime == null
             ? "运行时间 —"
             : `已运行 ${Math.floor(r.uptime / 86400)} 天`}

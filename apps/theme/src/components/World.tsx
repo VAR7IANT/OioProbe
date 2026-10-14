@@ -105,7 +105,9 @@ export function World({
         <h2>
           <Globe2 size={16} />
           地区分布{" "}
-          <span className="geography-count">{counts.length} 个地区</span>
+          <span className="geography-count">
+            {counts.length} 个地区 · {nodes.length} 个节点
+          </span>
         </h2>
         <div className="map-actions">
           <Button
@@ -118,48 +120,40 @@ export function World({
           </Button>
         </div>
       </div>
-      <div className="region-chips" role="group" aria-label="地区筛选">
-        <button
-          className={!selected ? "selected" : ""}
-          aria-pressed={!selected}
-          onClick={() => onSelect("")}
-        >
-          全部地区 <b>{nodes.length}</b>
-        </button>
-        {counts.map(({ code, count }) => (
+      <div className={`map-stage ${collapsed ? "collapsed" : ""}`}>
+        <div className="region-chips" role="group" aria-label="地区筛选">
           <button
-            key={code}
-            className={selected === code ? "selected" : ""}
-            aria-label={`筛选${regionName(code)}节点`}
-            aria-pressed={selected === code}
-            onClick={() => select(code)}
+            className={!selected ? "selected" : ""}
+            aria-pressed={!selected}
+            onClick={() => onSelect("")}
           >
-            <span aria-hidden="true">
-              <RegionFlag code={code} />
+            <span className="region-all" aria-hidden="true">
+              <Globe2 size={13} />
             </span>
-            {code}
-            <b>{count}</b>
+            <span className="region-name">全部地区</span>
+            <b>{nodes.length}</b>
           </button>
-        ))}
-      </div>
-      {!collapsed && (
-        <>
-          <div className="map-stage">
-            <div className="map-caption">
-              <span className="map-kicker">A SMALLER WORLD</span>
-              <p>
-                每一处连接，
-                <br />
-                都清晰可见。
-              </p>
-              <div className="map-coverage">
-                <strong>{counts.length}</strong>
-                <span>个地区 · {nodes.length} 个节点</span>
-              </div>
-              <small>
-                {globe ? "拖动地球，探索节点分布" : "选择地区，聚焦你的节点"}
-              </small>
-            </div>
+          {counts.map(({ code, count }) => (
+            <button
+              key={code}
+              className={selected === code ? "selected" : ""}
+              aria-label={`筛选${regionName(code)}节点`}
+              aria-pressed={selected === code}
+              onClick={() => select(code)}
+            >
+              <span aria-hidden="true">
+                <RegionFlag code={code} />
+              </span>
+              <span className="region-name">
+                {code}
+                <span className="region-full">{regionName(code)}</span>
+              </span>
+              <b>{count}</b>
+            </button>
+          ))}
+        </div>
+        {!collapsed && (
+          <div className="map-body">
             <div className={`geo-canvas ${globe ? "globe" : "flat"}`}>
               <svg
                 viewBox="0 0 1000 370"
@@ -249,74 +243,74 @@ export function World({
                 );
               })}
             </div>
-          </div>
-          <div className="map-footer">
-            <span>地区参考位置 · 非节点精确坐标</span>
-            <div className="map-controls">
-              <Button
-                variant="outline"
-                aria-label={globe ? "切换 2D 地图" : "切换 3D 地球"}
-                onClick={() => {
-                  setGlobe(!globe);
-                  setZoom(1);
-                }}
-              >
-                {globe ? <Map size={14} /> : <Globe2 size={14} />}
-                {globe ? "2D 地图" : "3D 地球"}
-              </Button>
-              {globe ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="向左旋转地球"
-                    onClick={() => setRotation((r) => [r[0] - 20, r[1]])}
-                  >
-                    <ArrowLeft size={14} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="向右旋转地球"
-                    onClick={() => setRotation((r) => [r[0] + 20, r[1]])}
-                  >
-                    <ArrowRight size={14} />
-                  </Button>
-                </>
-              ) : null}
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="缩小地图"
-                disabled={zoom <= 1}
-                onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
-              >
-                <Minus size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="放大地图"
-                disabled={zoom >= 2}
-                onClick={() => setZoom((z) => Math.min(2, z + 0.25))}
-              >
-                <Plus size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="重置地图视角"
-                onClick={() => {
-                  setZoom(1);
-                  setRotation([-105, -20]);
-                }}
-              >
-                <RotateCcw size={14} />
-              </Button>
+            <div className="map-footer">
+              <span>地区参考位置 · 非节点精确坐标</span>
+              <div className="map-controls">
+                <Button
+                  variant="outline"
+                  aria-label={globe ? "切换 2D 地图" : "切换 3D 地球"}
+                  onClick={() => {
+                    setGlobe(!globe);
+                    setZoom(1);
+                  }}
+                >
+                  {globe ? <Map size={14} /> : <Globe2 size={14} />}
+                  {globe ? "2D 地图" : "3D 地球"}
+                </Button>
+                {globe ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="向左旋转地球"
+                      onClick={() => setRotation((r) => [r[0] - 20, r[1]])}
+                    >
+                      <ArrowLeft size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="向右旋转地球"
+                      onClick={() => setRotation((r) => [r[0] + 20, r[1]])}
+                    >
+                      <ArrowRight size={14} />
+                    </Button>
+                  </>
+                ) : null}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="缩小地图"
+                  disabled={zoom <= 1}
+                  onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
+                >
+                  <Minus size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="放大地图"
+                  disabled={zoom >= 2}
+                  onClick={() => setZoom((z) => Math.min(2, z + 0.25))}
+                >
+                  <Plus size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="重置地图视角"
+                  onClick={() => {
+                    setZoom(1);
+                    setRotation([-105, -20]);
+                  }}
+                >
+                  <RotateCcw size={14} />
+                </Button>
+              </div>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </section>
   );
 }
