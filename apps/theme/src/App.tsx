@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Activity,
   ArrowDownLeft,
@@ -48,7 +48,7 @@ const nav = [
   ["settings", "设置", Settings2],
 ] as const;
 const subtitles: Record<string, string> = {
-  overview: "所有节点的在线状态、资源占用与实时流量。",
+  overview: "节点状态、资源占用与实时流量。",
   nodes: "搜索、筛选并比较每个节点的资源占用。",
   network: "延迟、丢包与链路质量分析。",
   alerts: "告警规则、通知渠道与事件记录。",
@@ -127,8 +127,14 @@ export default function App() {
   useEffect(() => {
     if (!menu) return;
     const close = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    const outside = (e: PointerEvent) =>
+      !(e.target as Element).closest?.(".site-header") && setMenu(false);
     window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
+    window.addEventListener("pointerdown", outside);
+    return () => {
+      window.removeEventListener("keydown", close);
+      window.removeEventListener("pointerdown", outside);
+    };
   }, [menu]);
   const title =
     nav.find((n) => n[0] === page)?.[1] ??
@@ -339,7 +345,6 @@ function Overview({ probe }: { probe: Probe }) {
       ? values.reduce((a, v) => a + v, 0)
       : null;
   };
-  const share = (n: number) => `${(n / Math.max(1, nodes.length)) * 100}%`;
   return (
     <>
       <div className="probe-summary">
@@ -374,22 +379,30 @@ function Overview({ probe }: { probe: Probe }) {
             </div>
           </div>
           <div className="health-bar" aria-hidden="true">
-            {live && nodes.length ? (
-              <>
-                <span
-                  className="online"
-                  style={{ width: share(online.length) }}
-                />
-                <span
-                  className="stale"
-                  style={{ width: share(stale.length) }}
-                />
-                <span
-                  className="offline"
-                  style={{ width: share(offline.length) }}
-                />
-              </>
-            ) : null}
+            {live
+              ? (
+                  [
+                    ["online", online.length],
+                    ["stale", stale.length],
+                    ["offline", offline.length],
+                    [
+                      "unknown",
+                      nodes.length -
+                        online.length -
+                        stale.length -
+                        offline.length,
+                    ],
+                  ] as const
+                )
+                  .filter(([, count]) => count > 0)
+                  .map(([state, count]) => (
+                    <span
+                      key={state}
+                      className={state}
+                      style={{ "--share": count } as CSSProperties}
+                    />
+                  ))
+              : null}
           </div>
         </section>
         <section className="panel network-summary">

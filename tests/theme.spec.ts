@@ -313,6 +313,11 @@ test("system theme default, status counts, remembered view, menu escape", async 
   await expect(
     page.getByRole("link", { name: "告警", exact: true }),
   ).toBeHidden();
+  await page.getByRole("button", { name: "打开导航" }).click();
+  await page.getByRole("heading", { name: "全部节点" }).click();
+  await expect(
+    page.getByRole("link", { name: "告警", exact: true }),
+  ).toBeHidden();
 });
 
 test("detail, list and settings pages meet WCAG AA in both themes", async ({
@@ -350,4 +355,42 @@ test("CPU history chart shows a crosshair tooltip on hover", async ({
   await expect(page.locator(".chart-tooltip")).toContainText(/CPU \d+\.\d%/);
   await page.getByRole("heading", { name: "CPU 历史" }).hover();
   await expect(page.locator(".chart-tooltip")).toHaveCount(0);
+});
+
+test("cards, traffic tiles and detail panels never clip content on narrow screens", async ({
+  page,
+}) => {
+  const spills = () =>
+    page.evaluate(() =>
+      [
+        ...document.querySelectorAll(
+          ".node-card, .node-card *, .detail-grid, .detail-grid *",
+        ),
+      ]
+        .filter((el) => el.scrollWidth > el.clientWidth + 1 && el.clientWidth)
+        .filter((el) => getComputedStyle(el).textOverflow !== "ellipsis")
+        .map((el) => `${el.className}: ${el.textContent?.slice(0, 24)}`),
+    );
+  for (const width of [320, 681]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const view of ["卡片视图", "列表视图"]) {
+      await page.goto("/#/nodes");
+      await page.getByRole("button", { name: view }).click();
+      expect(await spills(), `${view} at ${width}px`).toEqual([]);
+    }
+    await page.goto("/#/nodes/tokyo");
+    await expect(page.getByRole("heading", { name: "实时资源" })).toBeVisible();
+    expect(await spills(), `detail at ${width}px`).toEqual([]);
+  }
+});
+
+test("health bar shows one segment per non-empty node state", async ({
+  page,
+}) => {
+  await page.goto("/#/overview");
+  const bar = page.locator(".health-bar");
+  await expect(bar.locator("span")).toHaveCount(2);
+  await expect(bar.locator(".online")).toBeVisible();
+  await expect(bar.locator(".offline")).toBeVisible();
+  await expect(bar.locator(".stale")).toHaveCount(0);
 });

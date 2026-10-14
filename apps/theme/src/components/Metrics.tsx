@@ -114,7 +114,7 @@ export function NodeCard({
           icon={<Cpu size={13} />}
           label="CPU"
           value={r?.cpu ?? null}
-          detail={`${node.cores} 核`}
+          detail={`${node.cores || "—"} 核`}
         />
         <Meter
           icon={<MemoryStick size={13} />}

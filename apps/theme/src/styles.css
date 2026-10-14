@@ -562,6 +562,7 @@ footer a:hover {
 }
 .health-bar span {
   display: block;
+  flex: var(--share) 0 0;
   height: 100%;
 }
 .health-bar .online {
@@ -572,6 +573,9 @@ footer a:hover {
 }
 .health-bar .offline {
   background: var(--danger);
+}
+.health-bar .unknown {
+  background: var(--border-strong);
 }
 
 /* ── Geography ────────────────────────────────────────────────────────── */
@@ -1178,11 +1182,13 @@ footer a:hover {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+/* Label and rate share a row when they fit; otherwise the rate wraps below. */
 .node-traffic > div,
 .detail-traffic > div {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 2px 8px;
   min-width: 0;
   padding: 10px 12px;
@@ -1202,13 +1208,12 @@ footer a:hover {
 .detail-traffic b {
   font-size: 14px;
   font-weight: 600;
-  text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 .node-traffic small,
 .detail-traffic small {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1276,12 +1281,6 @@ footer a:hover {
 .list-view .node-traffic {
   grid-column: 3;
   grid-row: 1 / 3;
-}
-.list-view .node-traffic > div {
-  grid-template-columns: 1fr;
-}
-.list-view .node-traffic b {
-  text-align: left;
 }
 
 /* ── States ───────────────────────────────────────────────────────────── */
@@ -1759,12 +1758,6 @@ dd {
     grid-column: 1 / -1;
     grid-row: 3;
   }
-  .list-view .node-traffic > div {
-    grid-template-columns: auto 1fr;
-  }
-  .list-view .node-traffic b {
-    text-align: right;
-  }
   .connection-label {
     position: absolute;
     width: 1px;
@@ -1960,8 +1953,11 @@ dd {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+  /* Stacked list rows behave exactly like cards on phones. */
   .list-view .node-card {
     display: flex;
+    align-items: stretch;
+    gap: 16px;
     padding: 16px;
   }
   .list-view .node-bottom {
@@ -1969,12 +1965,6 @@ dd {
   }
   .list-view .node-meters .meter > small {
     display: block;
-  }
-  .list-view .node-traffic > div {
-    grid-template-columns: auto 1fr;
-  }
-  .list-view .node-traffic b {
-    text-align: right;
   }
   .node-card {
     padding: 16px;
@@ -2035,7 +2025,8 @@ dd {
   .network-summary-grid strong {
     font-size: 20px;
   }
-  .node-card {
+  .node-card,
+  .list-view .node-card {
     padding: 14px;
   }
   .node-meters {
