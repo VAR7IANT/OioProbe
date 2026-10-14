@@ -394,3 +394,42 @@ test("health bar shows one segment per non-empty node state", async ({
   await expect(bar.locator(".offline")).toBeVisible();
   await expect(bar.locator(".stale")).toHaveCount(0);
 });
+
+test("theme switches in one frame without low-contrast color transitions", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/overview");
+  const read = () =>
+    [
+      ".map-actions > .button-ghost",
+      ".region-chips button.selected",
+      ".site-nav a.active",
+      ".filter-tabs button.selected",
+    ].map((selector) => {
+      const style = getComputedStyle(document.querySelector(selector)!);
+      return `${selector} ${style.color} ${style.backgroundColor}`;
+    });
+  // Read colors the instant data-theme flips, while any transition would run.
+  const immediate = await page.evaluate(
+    (readSource) =>
+      new Promise<string[]>((resolve) => {
+        const readNow = new Function(
+          `return (${readSource})()`,
+        ) as () => string[];
+        const observer = new MutationObserver(() => {
+          observer.disconnect();
+          resolve(readNow());
+        });
+        observer.observe(document.documentElement, {
+          attributeFilter: ["data-theme"],
+        });
+        document
+          .querySelector<HTMLButtonElement>('[aria-label="切换深色主题"]')!
+          .click();
+      }),
+    read.toString(),
+  );
+  await page.waitForTimeout(400);
+  expect(immediate).toEqual(await page.evaluate(read));
+});

@@ -2039,6 +2039,11 @@ dd {
     grid-template-columns: 1fr;
   }
 }
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

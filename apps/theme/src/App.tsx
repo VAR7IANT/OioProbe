@@ -89,7 +89,13 @@ function useTheme() {
     const apply = () => {
       const next = resolveTheme(pref);
       setResolved(next);
-      document.documentElement.dataset.theme = next;
+      // Switch in a single frame: animating colors between themes briefly
+      // shows low-contrast mixes of old and new values.
+      const root = document.documentElement;
+      root.classList.add("theme-switching");
+      root.dataset.theme = next;
+      void getComputedStyle(document.body).color;
+      setTimeout(() => root.classList.remove("theme-switching"), 0);
       document
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute("content", next === "dark" ? "#0d0d0d" : "#f6f6f4");
