@@ -1,0 +1,29 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Tag must match the theme version
+        run: test "v$(jq -r .version apps/theme/komari-theme.json)" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      - run: npm run check
+      - run: npm run theme:pack
+      - name: Stage release assets
+        working-directory: artifacts
+        run: |
+          cp oioprobe-theme-*.zip oioprobe-theme.zip
+          sha256sum oioprobe-theme.zip oioprobe-theme-*.zip > SHA256SUMS
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" artifacts/oioprobe-theme.zip artifacts/oioprobe-theme-*.zip artifacts/SHA256SUMS --generate-notes

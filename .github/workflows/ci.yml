@@ -11,6 +11,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - run: shellcheck install.sh
+      - run: python3 scripts/check-install-sync.py
       - run: npm ci
       - run: npm run check
       - run: npx playwright install --with-deps chromium firefox webkit

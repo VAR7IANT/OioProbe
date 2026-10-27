@@ -11,44 +11,59 @@ Current theme **0.1.2** features mist-white and graphite modes, a dot-map visual
 
 [Desktop screenshot](evidence/chromium-desktop-overview-1440.png) · [Mobile screenshot](evidence/chromium-desktop-overview-390.png) · [Dark-mode screenshot](evidence/chromium-desktop-overview-dark.png)
 
-## Quick Deployment and Theme Activation
+## One-Command Deployment
 
-On an isolated test server with Docker installed and permission to run Docker, execute the following command. It starts the native Komari panel pinned to the verified **1.5.1** release, with persistent data in a named Docker volume:
+On a fresh Linux VPS (root, with either Docker or systemd), run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/VAR7IANT/OioProbe/main/install.sh | sudo bash
+```
+
+The installer:
+
+1. Runs the pinned, checksum-verified Komari **1.5.1** core (Docker image if Docker is running, otherwise the official binary under systemd; x86_64 and arm64).
+2. Starts it on loopback only, completes Komari's first-run setup with a random admin password, and installs and activates the OioProbe theme through Komari's own API. The port is opened to the network only after setup, so nobody can race the setup wizard.
+3. Prints the dashboard URL, the admin login (also saved to `/opt/oioprobe/credentials`, mode 600), and a ready-to-paste Agent command for your first node.
+
+Open TCP `25774` in your firewall / cloud security group, then visit `http://<server-ip>:25774`.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `OIOPROBE_PORT` | `25774` | Listen port |
+| `OIOPROBE_BIND` | `0.0.0.0` | Set `127.0.0.1` when a reverse proxy (Caddy / Nginx / Cloudflare Tunnel) provides HTTPS |
+| `OIOPROBE_DIR` | `/opt/oioprobe` | Data, credentials and (native mode) binary |
+| `OIOPROBE_MODE` | `auto` | `docker` or `native` to force a runtime |
+| `OIOPROBE_USER` / `OIOPROBE_PASSWORD` | `admin` / random | Initial admin account |
+| `OIOPROBE_THEME_ZIP` | latest GitHub Release | Theme ZIP URL or local path |
+
+```bash
+# example: behind a reverse proxy, custom port
+curl -fsSL https://raw.githubusercontent.com/VAR7IANT/OioProbe/main/install.sh | sudo OIOPROBE_BIND=127.0.0.1 OIOPROBE_PORT=8080 bash
+# upgrade the theme / core pin: simply re-run the install command (data and credentials are kept)
+# uninstall (add --purge to delete data)
+curl -fsSL https://raw.githubusercontent.com/VAR7IANT/OioProbe/main/install.sh | sudo bash -s -- uninstall
+```
+
+The theme is downloaded from the latest GitHub Release and verified against its `SHA256SUMS`. If no release has been published yet, the installer builds the theme from source in a throwaway `node:22` container (requires Docker). Maintainers publish a release by pushing a tag that matches the theme version: `git tag v0.1.2 && git push origin v0.1.2`.
+
+> CI runs ShellCheck and a pin-sync check on the installer. Both runtime paths were exercised end to end against the real Komari 1.5.1 binary (the Docker path in a stand-in image built from that binary, since the official GHCR image could not be pulled in the test environment). Try it on a disposable VPS first if you are cautious.
+
+### Manual Installation
+
+If you prefer to do it by hand: start the core with Docker, then upload the theme ZIP (`oioprobe-theme.zip` from the Releases page, or build it with `npm ci && npm run theme:pack`) in Komari's admin theme manager and select **OioProbe**.
 
 ```bash
 docker run -d --name oioprobe --restart unless-stopped -p 25774:25774 -v oioprobe-data:/app/data ghcr.io/komari-monitor/komari:1.5.1
 ```
 
-Open `http://<server-ip>:25774` in your browser and follow the initial setup wizard to create an administrator account. Ensure the port is reachable from your client. If a container named `oioprobe` already exists, inspect it instead of rerunning the creation command. If Komari 1.5.1 is already installed, proceed directly to theme installation.
+A fresh panel without nodes displays an empty state. Add nodes from Komari's native admin panel (Clients → Add), which generates the Agent installation command. No shared token is shipped.
 
-### Install the OioProbe Theme
-
-The command above starts the core service. Install and enable OioProbe from Komari's native theme management interface.
-
-1. Open the repository's [Actions](https://github.com/VAR7IANT/OioProbe/actions). Locate the latest successful `Phase baseline verification` run that includes the theme-packaging step. Download and extract `phase-baseline-evidence`.
-2. Inside its `artifacts/` folder, find `oioprobe-theme-0.1.2.zip`. Upload this **theme ZIP**, not the outer evidence archive or GitHub source archive.
-3. Sign in to `http://<server-ip>:25774/admin`, upload the theme in the theme-management section, select **OioProbe**, enable it, and return to the home page.
-
-Alternatively, on a system with Git, Node.js 22+, and Python 3, build the theme archive using:
-
-```bash
-git clone https://github.com/VAR7IANT/OioProbe.git && cd OioProbe && npm ci && npm run theme:pack
-```
-
-The output is `artifacts/oioprobe-theme-0.1.2.zip`. Upload and enable it following the admin steps above.
-
-A fresh panel without nodes displays an empty state. Generate Agent installation commands for each node using Komari's native admin panel. This README does not provide a shared token or automatically onboard nodes.
-
-Inspect logs or stop the test panel:
+Inspect logs or stop the panel:
 
 ```bash
 docker logs --tail 100 oioprobe
 docker stop oioprobe
 ```
-
-Stopping the container retains the named-volume data. Restart it with `docker start oioprobe`.
-
-At this stage, only isolated verification of the native binary and theme has been completed. The Docker instructions follow [Komari's official deployment guide](https://www.komari.wiki/en/install/docker); deployment on a real Docker host has **not** yet been acceptance-tested.
 
 ## Vercel Frontend + NAT Backend (Public Live Monitoring)
 
